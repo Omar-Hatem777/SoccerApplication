@@ -14,6 +14,7 @@ public class LeagueRepository {
         this.em = em;
     }
 
+    // CRUD operations
     public void save(League league) {
         em.getTransaction().begin();
         em.persist(league);
@@ -41,11 +42,11 @@ public class LeagueRepository {
         em.getTransaction().commit();
     }
 
-    public League findByName(String name) {
+    // Custom queries
+    public List<League> findByName(String name) {
         TypedQuery<League> query = em.createQuery(
-                "SELECT l FROM League l WHERE l.name = :name", League.class);
-        query.setParameter("name", name);
-        return query.getSingleResult();
+                "SELECT l FROM League l WHERE l.name LIKE :name", League.class);
+        query.setParameter("name", "%" + name + "%");
+        return query.getResultList();
     }
-
 }

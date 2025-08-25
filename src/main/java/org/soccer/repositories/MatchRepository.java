@@ -1,10 +1,12 @@
 package org.soccer.repositories;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
+import java.util.List;
+
+import org.soccer.enums.MatchStatus;
 import org.soccer.models.Match;
 
-import java.util.List;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 
 public class MatchRepository {
 
@@ -14,6 +16,7 @@ public class MatchRepository {
         this.em = em;
     }
 
+    // CRUD operations
     public void save(Match match) {
         em.getTransaction().begin();
         em.persist(match);
@@ -41,6 +44,14 @@ public class MatchRepository {
         em.getTransaction().commit();
     }
 
+    // Custom queries
+    public List<Match> findByTeamId(Long teamId) {
+        TypedQuery<Match> query = em.createQuery(
+                "SELECT m FROM Match m WHERE m.homeTeam.id = :teamId OR m.awayTeam.id = :teamId", Match.class);
+        query.setParameter("teamId", teamId);
+        return query.getResultList();
+    }
+
     public List<Match> findByLeagueId(Long leagueId) {
         TypedQuery<Match> query = em.createQuery(
                 "SELECT m FROM Match m WHERE m.league.id = :leagueId", Match.class);
@@ -48,10 +59,22 @@ public class MatchRepository {
         return query.getResultList();
     }
 
-    public List<Match> findByTeamId(Long teamId) {
+    public List<Match> findByStatus(MatchStatus status) {
         TypedQuery<Match> query = em.createQuery(
-                "SELECT m FROM Match m WHERE m.homeTeam.id = :teamId OR m.awayTeam.id = :teamId", Match.class);
-        query.setParameter("teamId", teamId);
+                "SELECT m FROM Match m WHERE m.status = :status", Match.class);
+        query.setParameter("status", status);
         return query.getResultList();
+    }
+
+    public List<Match> findOngoingMatches() {
+        return findByStatus(MatchStatus.ONGOING);
+    }
+
+    public List<Match> findScheduledMatches() {
+        return findByStatus(MatchStatus.SCHEDULED);
+    }
+
+    public List<Match> findCompletedMatches() {
+        return findByStatus(MatchStatus.FINISHED);
     }
 }

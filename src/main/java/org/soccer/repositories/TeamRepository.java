@@ -14,6 +14,7 @@ public class TeamRepository {
         this.em = em;
     }
 
+    // CRUD operations
     public void save(Team team) {
         em.getTransaction().begin();
         em.persist(team);
@@ -41,6 +42,7 @@ public class TeamRepository {
         em.getTransaction().commit();
     }
 
+    // Custom queries
     public List<Team> findByLeagueId(Long leagueId) {
         TypedQuery<Team> query = em.createQuery(
                 "SELECT t FROM Team t WHERE t.league.id = :leagueId", Team.class);
@@ -48,4 +50,17 @@ public class TeamRepository {
         return query.getResultList();
     }
 
+    public List<Team> findByName(String name) {
+        TypedQuery<Team> query = em.createQuery(
+                "SELECT t FROM Team t WHERE t.name LIKE :name", Team.class);
+        query.setParameter("name", "%" + name + "%");
+        return query.getResultList();
+    }
+
+    public List<Team> findByCoachName(String coachName) {
+        TypedQuery<Team> query = em.createQuery(
+                "SELECT t FROM Team t WHERE t.coachName LIKE :coachName", Team.class);
+        query.setParameter("coachName", "%" + coachName + "%");
+        return query.getResultList();
+    }
 }
